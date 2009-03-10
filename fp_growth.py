@@ -46,9 +46,9 @@ def find_frequent_itemsets(transactions, minimum_support):
         transaction.sort(key=lambda v: items[v], reverse=True)
         return transaction
         
-    tree = FPTree()
+    master = FPTree()
     for transaction in imap(clean_transaction, processed_transactions):
-        tree.add(transaction)
+        master.add(transaction)
     
     def find_with_suffix(tree, suffix):
         for item, nodes in tree.items():
@@ -66,7 +66,7 @@ def find_frequent_itemsets(transactions, minimum_support):
                     yield s # pass along the good news to our caller
     
     # Search for frequent itemsets, and yield the results we find.
-    for s in find_with_suffix(tree, []):
+    for s in find_with_suffix(master, []):
         yield s
 
 class FPTree(object):
