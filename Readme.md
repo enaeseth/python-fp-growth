@@ -2,7 +2,10 @@ Python FP-Growth
 ================
 
 This module provides a pure Python implementation of the FP-growth algorithm for
-finding frequent itemsets.
+finding frequent itemsets. FP-growth exploits a (usually-valid) assumption that
+many transactions will have items in common to build a prefix tree. If the
+assumption holds true, this tree produces a compact representation of the actual
+transactions and is used to generate itemsets much faster than *Apriori* can.
 
 Installation
 ------------
