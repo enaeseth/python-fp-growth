@@ -224,8 +224,9 @@ def conditional_tree_from_paths(paths, minimum_support):
     # Finally, remove the nodes corresponding to the item for which this
     # conditional tree was generated.
     for node in tree.nodes(condition_item):
-        node.parent.remove(item)
-        
+        if node.parent is not None: # the node might already be an orphan
+            node.parent.remove(node)
+    
     return tree
     
 class FPNode(object):
@@ -266,6 +267,17 @@ class FPNode(object):
                 del self._children[child.item]
                 child.parent = None
                 self._tree._removed(child)
+                for sub_child in child.children:
+                    try:
+                        # Merger case: we already have a child for that item, so
+                        # add the sub-child's count to our child's count.
+                        self._children[sub_child.item]._count += sub_child.count
+                        sub_child.parent = None # it's an orphan now
+                    except KeyError:
+                        # Turns out we don't actually have a child, so just add
+                        # the sub-child as our own child.
+                        self.add(sub_child)
+                child._children = {}
             else:
                 raise ValueError("that node is not a child of this node")
         except KeyError:
