@@ -62,6 +62,15 @@ class FPTree(object):
             # First node for this item; start a new route.
             self._routes[point.item] = [point, point]
             
+    def items(self):
+        """
+        Generate one 2-tuples for each item represented in the tree. The first
+        element of the tuple is the item itself, and the second element is a
+        generator that will yield the nodes in the tree that belong to the item.
+        """
+        for item in self._routes.iterkeys():
+            yield (item, self.nodes(item))
+    
     def nodes(self, item):
         """
         Generates the sequence of nodes that contain the given item.
