@@ -115,6 +115,8 @@ class FPTree(object):
             point = next_point
             
     def _update_route(self, point):
+        assert self is point.tree
+        
         try:
             route = self._routes[point.item]
             route[1].neighbor = point # route[1] is the tail
@@ -200,6 +202,8 @@ def conditional_tree_from_paths(paths, minimum_support):
                 point.add(next_point)
                 tree._update_route(next_point)
             point = next_point
+    
+    assert condition_item is not None
                 
     # Calculate the counts of the non-leaf nodes.
     for path in tree.prefix_paths(condition_item):
