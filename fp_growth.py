@@ -75,6 +75,19 @@ class FPTree(object):
         while node:
             yield node
             node = node.neighbor
+    
+    def prefix_paths(self, item):
+        """Generates the prefix paths that end with the given item."""
+        
+        def collect_path(node):
+            path = []
+            while node and not node.root:
+                path.append(node)
+                node = node.parent
+            path.reverse()
+            return path
+            
+        return (collect_path(node) for node in self.nodes(item) if node.leaf)
         
     
 class FPNode(object):
