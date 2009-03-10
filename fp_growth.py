@@ -148,7 +148,7 @@ class FPNode(object):
     @property
     def children(self):
         """The nodes that are children of this node."""
-        return tuple(self._children)
+        return tuple(self._children.itervalues())
     
     
     def __repr__(self):
