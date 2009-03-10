@@ -53,6 +53,20 @@ class FPTree(object):
                     self._paths[item] = [next_point, next_point]
                     
             point = next_point
+            
+    def nodes(self, item):
+        """
+        Generates the sequence of nodes that contain the given item.
+        """
+        
+        try:
+            node = self._paths[item][0]
+        except KeyError:
+            return
+            
+        while node:
+            yield node
+            node = node.neighbor
         
     
 class FPNode(object):
