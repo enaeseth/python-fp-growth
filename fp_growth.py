@@ -21,7 +21,7 @@ class FPTree(object):
         
         # A dictionary mapping items to the head and tail of a path of
         # "neighbors" that will hit every node containing that item.
-        self._paths = {}
+        self._routes = {}
         
     def add(self, transaction):
         """
@@ -45,12 +45,12 @@ class FPTree(object):
                 # Update the path of nodes that contain this item to include
                 # our new node.
                 try:
-                    path = self._paths[item]
+                    path = self._routes[item]
                     path[1].neighbor = next_point # path[1] is the tail
                     path[1] = next_point
                 except KeyError:
                     # First node for this item; start a new path.
-                    self._paths[item] = [next_point, next_point]
+                    self._routes[item] = [next_point, next_point]
                     
             point = next_point
             
@@ -60,7 +60,7 @@ class FPTree(object):
         """
         
         try:
-            node = self._paths[item][0]
+            node = self._routes[item][0]
         except KeyError:
             return
             
