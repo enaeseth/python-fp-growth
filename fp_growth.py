@@ -109,6 +109,15 @@ class FPNode(object):
         except KeyError:
             return None
             
+    def remove(self, child):
+        try:
+            if self._children[child.item] is child:
+                del self._children[child.item]
+            else:
+                raise ValueError("that node is not a child of this node")
+        except KeyError:
+            raise ValueError("that node is not a child of this node")
+            
     def __contains__(self, item):
         return item in self._children
         
