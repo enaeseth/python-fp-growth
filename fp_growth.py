@@ -120,6 +120,7 @@ class FPTree(object):
             point = next_point
             
     def _update_route(self, point):
+        """Add the given node to the route through all nodes for its item."""
         assert self is point.tree
         
         try:
@@ -201,6 +202,7 @@ def conditional_tree_from_paths(paths, minimum_support):
         for node in path:
             next_point = point.search(node.item)
             if not next_point:
+                # Add a new node to the tree.
                 items.add(node.item)
                 count = node.count if node.item == condition_item else 0
                 next_point = FPNode(tree, node.item, count)
