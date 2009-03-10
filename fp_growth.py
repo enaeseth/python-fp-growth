@@ -4,9 +4,69 @@
 A Python implementation of the FP-growth algorithm.
 """
 
+from collections import defaultdict
+from itertools import imap
+
 __author__ = 'Eric Naeseth <enaeseth@gmail.com>'
 __copyright__ = 'Copyright © 2009 Eric Naeseth'
 __license__ = 'MIT License'
+
+def find_frequent_itemsets(transactions, minimum_support):
+    """
+    Finds frequent itemsets in the given transactions using FP-growth. This
+    function returns a generator instead of an eagerly-populated list of items.
+    
+    The `transactions` parameter can be any iterable of iterables of items.
+    `minimum_support` should be an integer specifying the minimum number of
+    occurrences of an itemset for it to be accepted.
+    """
+    items = defaultdict(lambda k: 0) # mapping from items to their supports
+    processed_transactions = []
+    
+    # Load the passed-in transactions and count the support that individual
+    # items have.
+    for transaction in transactions:
+        processed = []
+        for item in transaction:
+            items[item] += 1
+            processed.append(item)
+        processed_transactions.append(processed)
+    
+    # Remove infrequent items from the item support dictionary.
+    items = dict(items)
+    for item, support in items.iteritems():
+        if support < minimum_support:
+            del items[item]
+    
+    # Build our FP-tree. Before any transactions can be added to the tree, they
+    # must be stripped of infrequent items and their surviving items must be
+    # sorted in decreasing order of frequency.
+    def clean_transaction(transaction):
+        transaction = filter(lambda v: v in items, transaction)
+        transaction.sort(key=lambda v: items[v], reverse=True)
+        return transaction
+        
+    tree = FPTree()
+    for transaction in imap(clean_transaction, processed_transactions):
+        tree.add(transaction)
+    
+    def find_with_suffix(tree, suffix):
+        for item, nodes in tree.items():
+            support = sum(n.count for n in nodes)
+            if support >= minimum_support:
+                # New winner!
+                found_set = [item] + suffix
+                yield found_set
+                
+                # Build a conditional tree and recursively search for frequent
+                # itemsets within it.
+                cond_tree = conditional_tree_from_paths(tree.prefix_paths(item))
+                for s in find_with_suffix(cond_tree, found_set):
+                    yield s # pass along the good news to our caller
+    
+    # Search for frequent itemsets, and yield the results we find.
+    for s in find_with_suffix(tree, []):
+        yield s
 
 class FPTree(object):
     """
