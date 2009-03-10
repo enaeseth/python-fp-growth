@@ -97,6 +97,24 @@ class FPTree(object):
             return path
             
         return (collect_path(node) for node in self.nodes(item) if node.leaf)
+        
+    def _removed(self, node):
+        """Called when `node` is removed from the tree; performs cleanup."""
+        
+        head, tail = self._routes[node.item]
+        if node is head:
+            if node is tail or not node.neighbor:
+                # It was the sole node.
+                del self._routes[node.item]
+            else:
+                self._routes[node.item][0] = node.neighbor
+        else:
+            for n in self.nodes(node.item):
+                if n.neighbor is node:
+                    n.neighbor = node.neighbor # skip over
+                    if node is tail:
+                        self._routes[node.item][1] = n
+                    break
 
 def conditional_tree_from_paths(paths, minimum_support):
     """Builds a conditional FP-tree from the given prefix paths."""
@@ -181,6 +199,8 @@ class FPNode(object):
         try:
             if self._children[child.item] is child:
                 del self._children[child.item]
+                child.parent = None
+                self._tree._removed(child)
             else:
                 raise ValueError("that node is not a child of this node")
         except KeyError:
