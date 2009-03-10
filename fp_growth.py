@@ -39,7 +39,7 @@ def find_frequent_itemsets(transactions, minimum_support):
     
     # Remove infrequent items from the item support dictionary.
     items = dict(items)
-    for item, support in items.iteritems():
+    for item, support in items.items():
         if support < minimum_support:
             del items[item]
     
