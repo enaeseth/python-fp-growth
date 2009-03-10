@@ -2,6 +2,11 @@
 
 """
 A Python implementation of the FP-growth algorithm.
+
+Basic usage of the module is very simple:
+
+    >>> from fp_growth import find_frequent_itemsets
+    >>> find_frequent_itemsets(transactions, minimum_support)
 """
 
 from collections import defaultdict
