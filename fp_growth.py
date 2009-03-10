@@ -159,7 +159,7 @@ class FPTree(object):
             path.reverse()
             return path
             
-        return (collect_path(node) for node in self.nodes(item) if node.leaf)
+        return (collect_path(node) for node in self.nodes(item))
         
     def _removed(self, node):
         """Called when `node` is removed from the tree; performs cleanup."""
