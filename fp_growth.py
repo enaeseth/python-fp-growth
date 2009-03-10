@@ -23,6 +23,11 @@ class FPTree(object):
         # "neighbors" that will hit every node containing that item.
         self._routes = {}
         
+    @property
+    def root(self):
+        """The root node of the tree."""
+        return self._root
+        
     def add(self, transaction):
         """
         Adds a transaction to the tree.
@@ -132,6 +137,11 @@ class FPNode(object):
     def root(self):
         """True if this node is the root of a tree; false if otherwise."""
         return self._item is None and self._count is None
+        
+    @property
+    def leaf(self):
+        """True if this node is a leaf in the tree; false if otherwise."""
+        return len(self._children) == 0
         
     def parent():
         doc = "The node's parent."
