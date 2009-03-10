@@ -20,7 +20,7 @@ def find_frequent_itemsets(transactions, minimum_support):
     `minimum_support` should be an integer specifying the minimum number of
     occurrences of an itemset for it to be accepted.
     """
-    items = defaultdict(lambda k: 0) # mapping from items to their supports
+    items = defaultdict(lambda: 0) # mapping from items to their supports
     processed_transactions = []
     
     # Load the passed-in transactions and count the support that individual
@@ -60,7 +60,8 @@ def find_frequent_itemsets(transactions, minimum_support):
                 
                 # Build a conditional tree and recursively search for frequent
                 # itemsets within it.
-                cond_tree = conditional_tree_from_paths(tree.prefix_paths(item))
+                cond_tree = conditional_tree_from_paths(tree.prefix_paths(item),
+                    minimum_support)
                 for s in find_with_suffix(cond_tree, found_set):
                     yield s # pass along the good news to our caller
     
@@ -305,9 +306,9 @@ class FPNode(object):
         def fget(self):
             return self._parent
         def fset(self, value):
-            if not isinstance(value, FPNode):
+            if value is not None and not isinstance(value, FPNode):
                 raise TypeError("A node must have an FPNode as a parent.")
-            if value.tree is not self.tree:
+            if value and value.tree is not self.tree:
                 raise ValueError("Cannot have a parent from another tree.")
             self._parent = value
         return locals()
@@ -321,9 +322,9 @@ class FPNode(object):
         def fget(self):
             return self._neighbor
         def fset(self, value):
-            if not isinstance(value, FPNode):
+            if value is not None and not isinstance(value, FPNode):
                 raise TypeError("A node must have an FPNode as a neighbor.")
-            if value.tree is not self.tree:
+            if value and value.tree is not self.tree:
                 raise ValueError("Cannot have a neighbor from another tree.")
             self._neighbor = value
         return locals()
