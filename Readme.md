@@ -10,10 +10,10 @@ transactions and is used to generate itemsets much faster than *Apriori* can.
 Installation
 ------------
 
-Installation is simple. After downloading and extracting the package, install
-the module by running `python setup.py install` from within the extracted
-package directory. (If you encounter errors, you may need to run setup with
-elevated permissions: `sudo python setup.py install`)
+After downloading and extracting the package, install the module by running
+`python setup.py install` from within the extracted package directory. (If you
+encounter errors, you may need to run setup with elevated permissions:
+`sudo python setup.py install`.)
 
 Library Usage
 -------------
