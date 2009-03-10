@@ -42,17 +42,20 @@ class FPTree(object):
                 next_point = FPNode(self, item)
                 point.add(next_point)
                 
-                # Update the path of nodes that contain this item to include
+                # Update the route of nodes that contain this item to include
                 # our new node.
-                try:
-                    path = self._routes[item]
-                    path[1].neighbor = next_point # path[1] is the tail
-                    path[1] = next_point
-                except KeyError:
-                    # First node for this item; start a new path.
-                    self._routes[item] = [next_point, next_point]
+                self._update_route(next_point)
                     
             point = next_point
+            
+    def _update_route(self, point):
+        try:
+            route = self._routes[point.item]
+            route[1].neighbor = point # route[1] is the tail
+            route[1] = point
+        except KeyError:
+            # First node for this item; start a new route.
+            self._routes[point.item] = [point, point]
             
     def nodes(self, item):
         """
