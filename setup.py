@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='Python FP-Growth',
-    description='A pure-python implementation of the FP-growth algorithm.'
+    description='A pure-python implementation of the FP-growth algorithm.',
     version='0.1',
     author='Eric Naeseth',
     author_email='enaeseth@gmail.com',
