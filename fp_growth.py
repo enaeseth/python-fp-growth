@@ -190,14 +190,14 @@ def conditional_tree_from_paths(paths, minimum_support):
     # leaf counts.
     for path in paths:
         if condition_item is None:
-            condition_item = path[-1]
+            condition_item = path[-1].item
         
         point = tree.root
         for node in path:
             next_point = point.search(node.item)
             if not next_point:
                 items.add(node.item)
-                count = node.count if node.leaf else 0
+                count = node.count if node.item == condition_item else 0
                 next_point = FPNode(tree, node.item, count)
                 point.add(next_point)
                 tree._update_route(next_point)
