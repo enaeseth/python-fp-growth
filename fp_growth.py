@@ -24,6 +24,9 @@ def find_frequent_itemsets(transactions, minimum_support):
     The `transactions` parameter can be any iterable of iterables of items.
     `minimum_support` should be an integer specifying the minimum number of
     occurrences of an itemset for it to be accepted.
+    
+    Each item must be hashable (i.e., it must be valid as a member of a
+    dictionary or a set).
     """
     items = defaultdict(lambda: 0) # mapping from items to their supports
     processed_transactions = []

@@ -27,7 +27,8 @@ in your transactions with the following code:
         print itemset
         
 Note that `find_frequent_itemsets` returns a generator of itemsets, not a
-greedily-populated list.
+greedily-populated list. Each item must be hashable (i.e., it must be valid as
+a member of a dictionary or a set).
 
 Script Usage
 ------------
