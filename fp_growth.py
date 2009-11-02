@@ -61,7 +61,7 @@ def find_frequent_itemsets(transactions, minimum_support):
     def find_with_suffix(tree, suffix):
         for item, nodes in tree.items():
             support = sum(n.count for n in nodes)
-            if support >= minimum_support:
+            if support >= minimum_support and item not in suffix:
                 # New winner!
                 found_set = [item] + suffix
                 yield found_set

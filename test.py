@@ -205,5 +205,14 @@ class ConditionalTreeTests(TreeTestCase):
         root.child('a', 2).leaf()
         self.assertEqual(1, len(root.node.children))
 
+class FrequentSetTests(unittest.TestCase):
+    def testDuplicate(self):
+        raw = '25,52,274;71;71,274;52;25,52;274,71'
+        transactions = [line.split(',') for line in raw.split(';')]
+        
+        itemsets = list(fp_growth.find_frequent_itemsets(transactions, 2))
+        self.assertEqual([['25'], ['52', '25'], ['274'], ['71'], ['52']],
+            itemsets)
+
 if __name__ == '__main__':
     unittest.main()
