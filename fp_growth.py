@@ -229,8 +229,9 @@ def conditional_tree_from_paths(paths, minimum_support):
         if support < minimum_support:
             # Doesn't make the cut anymore
             for node in tree.nodes(item):
-                node.parent.remove(node)
-                
+                if node.parent is not None:
+                    node.parent.remove(node)
+    
     # Finally, remove the nodes corresponding to the item for which this
     # conditional tree was generated.
     for node in tree.nodes(condition_item):
