@@ -9,16 +9,16 @@ Basic usage of the module is very simple:
     >>> find_frequent_itemsets(transactions, minimum_support)
 """
 
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from itertools import imap
 
 __author__ = 'Eric Naeseth <enaeseth@gmail.com>'
 __copyright__ = 'Copyright © 2009 Eric Naeseth'
 __license__ = 'MIT License'
 
-def find_frequent_itemsets(transactions, minimum_support):
+def find_frequent_itemsets(transactions, minimum_support, include_support=False):
     """
-    Finds frequent itemsets in the given transactions using FP-growth. This
+    Find frequent itemsets in the given transactions using FP-growth. This
     function returns a generator instead of an eagerly-populated list of items.
 
     The `transactions` parameter can be any iterable of iterables of items.
@@ -27,6 +27,9 @@ def find_frequent_itemsets(transactions, minimum_support):
 
     Each item must be hashable (i.e., it must be valid as a member of a
     dictionary or a set).
+
+    If `include_support` is true, yield (itemset, support) pairs instead of
+    just the itemsets.
     """
     items = defaultdict(lambda: 0) # mapping from items to their supports
     processed_transactions = []
@@ -41,10 +44,8 @@ def find_frequent_itemsets(transactions, minimum_support):
         processed_transactions.append(processed)
 
     # Remove infrequent items from the item support dictionary.
-    items = dict(items)
-    for item, support in items.items():
-        if support < minimum_support:
-            del items[item]
+    items = dict((item, support) for item, support in items.iteritems()
+        if support >= minimum_support)
 
     # Build our FP-tree. Before any transactions can be added to the tree, they
     # must be stripped of infrequent items and their surviving items must be
@@ -64,7 +65,7 @@ def find_frequent_itemsets(transactions, minimum_support):
             if support >= minimum_support and item not in suffix:
                 # New winner!
                 found_set = [item] + suffix
-                yield found_set
+                yield (found_set, support) if include_support else found_set
 
                 # Build a conditional tree and recursively search for frequent
                 # itemsets within it.
@@ -74,8 +75,8 @@ def find_frequent_itemsets(transactions, minimum_support):
                     yield s # pass along the good news to our caller
 
     # Search for frequent itemsets, and yield the results we find.
-    for s in find_with_suffix(master, []):
-        yield s
+    for itemset in find_with_suffix(master, []):
+        yield itemset
 
 class FPTree(object):
     """
