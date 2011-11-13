@@ -85,6 +85,9 @@ class FPTree(object):
     This object may only store transaction items that are hashable (i.e., all
     items must be valid as dictionary keys or set members).
     """
+
+    Route = namedtuple('Route', 'head tail')
+
     def __init__(self):
         # The root node of the tree.
         self._root = FPNode(self, None, None)
@@ -130,10 +133,10 @@ class FPTree(object):
         try:
             route = self._routes[point.item]
             route[1].neighbor = point # route[1] is the tail
-            route[1] = point
+            self._routes[point.item] = self.Route(route[0], point)
         except KeyError:
             # First node for this item; start a new route.
-            self._routes[point.item] = [point, point]
+            self._routes[point.item] = self.Route(point, point)
 
     def items(self):
         """
@@ -180,13 +183,13 @@ class FPTree(object):
                 # It was the sole node.
                 del self._routes[node.item]
             else:
-                self._routes[node.item][0] = node.neighbor
+                self._routes[node.item] = self.Route(node.neighbor, tail)
         else:
             for n in self.nodes(node.item):
                 if n.neighbor is node:
                     n.neighbor = node.neighbor # skip over
                     if node is tail:
-                        self._routes[node.item][1] = n
+                        self._routes[node.item] = self.Route(head, n)
                     break
 
 def conditional_tree_from_paths(paths, minimum_support):
