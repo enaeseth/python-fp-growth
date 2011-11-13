@@ -174,6 +174,17 @@ class FPTree(object):
 
         return (collect_path(node) for node in self.nodes(item))
 
+    def inspect(self):
+        print 'Tree:'
+        self.root.inspect(1)
+
+        print
+        print 'Routes:'
+        for item, nodes in self.items():
+            print '  %r' % item
+            for node in nodes:
+                print '    %r' % node
+
     def _removed(self, node):
         """Called when `node` is removed from the tree; performs cleanup."""
 
@@ -366,6 +377,10 @@ class FPNode(object):
         """The nodes that are children of this node."""
         return tuple(self._children.itervalues())
 
+    def inspect(self, depth=0):
+        print ('  ' * depth) + repr(self)
+        for child in self.children:
+            child.inspect(depth + 1)
 
     def __repr__(self):
         if self.root:
