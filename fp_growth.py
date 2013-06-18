@@ -232,11 +232,9 @@ def conditional_tree_from_paths(paths, minimum_support):
 
     # Calculate the counts of the non-leaf nodes.
     for path in tree.prefix_paths(condition_item):
-        count = None
-        for node in reversed(path):
-            if count is not None:
-                node._count += count
-            count = node.count
+        count = path[-1].count
+        for node in reversed(path[:-1]):
+            node._count += count
 
     # Eliminate the nodes for any items that are no longer frequent.
     for item in items:
@@ -403,7 +401,7 @@ if __name__ == '__main__':
 
     f = open(args[0])
     try:
-        for itemset in find_frequent_itemsets(csv.reader(f), options.minsup):
-            print '{' + ', '.join(itemset) + '}'
+        for itemset, support in find_frequent_itemsets(csv.reader(f), options.minsup, True):
+            print '{' + ', '.join(itemset) + '} ' + str(support)
     finally:
         f.close()
