@@ -205,6 +205,19 @@ class ConditionalTreeTests(TreeTestCase):
         root.child('a', 2).leaf()
         self.assertEqual(1, len(root.node.children))
 
+    def testSupport(self):
+        """
+        Issue #2: incorrect support calculation for shared paths
+        """
+        self.tree.add('abcd')
+        self.tree.add('abd')
+        paths = list(self.tree.prefix_paths('d'))
+        ct = fp_growth.conditional_tree_from_paths(paths, 1)
+        root = NodeTester(self,ct.root)
+        a = root.child('a',2)
+        b = a.child('b',2)
+        c = b.child('c',1)
+
 class FrequentSetTests(unittest.TestCase):
     def testDuplicate(self):
         raw = '25,52,274;71;71,274;52;25,52;274,71'
