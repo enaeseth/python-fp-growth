@@ -236,20 +236,24 @@ def conditional_tree_from_paths(paths, minimum_support):
         for node in reversed(path[:-1]):
             node._count += count
 
+#!Elimination procedure works incorrectly and has to be either revised or removed.
+#Without the commented code below the algorithm works correctly though slightly slower
+#than it would work with correctly implemented tree cleanup.
+
     # Eliminate the nodes for any items that are no longer frequent.
-    for item in items:
-        support = sum(n.count for n in tree.nodes(item))
-        if support < minimum_support:
-            # Doesn't make the cut anymore
-            for node in tree.nodes(item):
-                if node.parent is not None:
-                    node.parent.remove(node)
+#    for item in items:
+#        support = sum(n.count for n in tree.nodes(item))
+#        if support < minimum_support:
+#            # Doesn't make the cut anymore
+#            for node in tree.nodes(item):
+#                if node.parent is not None:
+#                    node.parent.remove(node)
 
     # Finally, remove the nodes corresponding to the item for which this
     # conditional tree was generated.
-    for node in tree.nodes(condition_item):
-        if node.parent is not None: # the node might already be an orphan
-            node.parent.remove(node)
+#    for node in tree.nodes(condition_item):
+#        if node.parent is not None: # the node might already be an orphan
+#            node.parent.remove(node)
 
     return tree
 
@@ -393,15 +397,30 @@ if __name__ == '__main__':
     p = OptionParser(usage='%prog data_file')
     p.add_option('-s', '--minimum-support', dest='minsup', type='int',
         help='Minimum itemset support (default: 2)')
+    p.add_option('-n', '--numeric', dest='numeric', action='store_true',
+        help='Convert the values in datasets to numerals (default: false)')
     p.set_defaults(minsup=2)
+    p.set_defaults(numeric=False)
 
     options, args = p.parse_args()
     if len(args) < 1:
         p.error('must provide the path to a CSV file to read')
 
-    f = open(args[0])
-    try:
-        for itemset, support in find_frequent_itemsets(csv.reader(f), options.minsup, True):
-            print '{' + ', '.join(itemset) + '} ' + str(support)
-    finally:
-        f.close()
+    transactions = []
+    with open(args[0]) as database:
+        for row in csv.reader(database):
+            if options.numeric:
+                transaction = []
+                for item in row:
+                    transaction.append(long(item))
+                transactions.append(transaction)
+            else:
+                transactions.append(row)
+
+    result = []
+    for itemset, support in find_frequent_itemsets(transactions, options.minsup, True):
+        result.append((itemset,support))
+
+    result = sorted(result, key=lambda i: i[0])
+    for itemset, support in result:
+        print str(itemset) + ' ' + str(support)
