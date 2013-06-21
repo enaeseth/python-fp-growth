@@ -236,20 +236,24 @@ def conditional_tree_from_paths(paths, minimum_support):
         for node in reversed(path[:-1]):
             node._count += count
 
+#!Elimination procedure works incorrectly and has to be either revised or removed.
+#Without the commented code below the algorithm works correctly though slightly slower
+#than it would work with correctly implemented tree cleanup.
+
     # Eliminate the nodes for any items that are no longer frequent.
-    for item in items:
-        support = sum(n.count for n in tree.nodes(item))
-        if support < minimum_support:
-            # Doesn't make the cut anymore
-            for node in tree.nodes(item):
-                if node.parent is not None:
-                    node.parent.remove(node)
+#    for item in items:
+#        support = sum(n.count for n in tree.nodes(item))
+#        if support < minimum_support:
+#            # Doesn't make the cut anymore
+#            for node in tree.nodes(item):
+#                if node.parent is not None:
+#                    node.parent.remove(node)
 
     # Finally, remove the nodes corresponding to the item for which this
     # conditional tree was generated.
-    for node in tree.nodes(condition_item):
-        if node.parent is not None: # the node might already be an orphan
-            node.parent.remove(node)
+#    for node in tree.nodes(condition_item):
+#        if node.parent is not None: # the node might already be an orphan
+#            node.parent.remove(node)
 
     return tree
 
