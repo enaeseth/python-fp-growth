@@ -12,7 +12,7 @@ Basic usage of the module is very simple:
 from collections import defaultdict, namedtuple
 from itertools import imap
 
-__author__ = 'Eric Naeseth <enaeseth@gmail.com>'
+__author__ = 'Eric Naeseth <eric@naeseth.com>'
 __copyright__ = 'Copyright © 2009 Eric Naeseth'
 __license__ = 'MIT License'
 
