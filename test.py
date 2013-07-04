@@ -7,7 +7,6 @@ Testing code for the FP-growth implementation.
 import unittest
 import fp_growth
 from itertools import izip
-from pprint import pprint
 
 class NodeTester(object):
     def __init__(self, case, node):
@@ -33,6 +32,7 @@ class NodeTester(object):
         self.case.assertTrue(self.node.leaf, 'node must be a leaf')
         return self
 
+
 class TreeTestCase(unittest.TestCase):
     def setUp(self):
         self.tree = fp_growth.FPTree()
@@ -49,6 +49,7 @@ class TreeTestCase(unittest.TestCase):
             self.assertEqual(len(items), len(path))
             for item, node in izip(items, path):
                 self.assertEqual(item, node.item)
+
 
 class InsertionTests(TreeTestCase):
     def testOneBranch(self):
@@ -73,9 +74,9 @@ class InsertionTests(TreeTestCase):
     def testNumeric(self):
         self.tree.add([1,2,3])
         self.tree.add([1,2,4])
-        
         self.root.child(1,2).child(2,2).child(3,1)
         self.root.child(1,2).child(2,2).child(4,1)
+
 
 class RouteTests(TreeTestCase):
     def testRoutes(self):
@@ -89,16 +90,6 @@ class RouteTests(TreeTestCase):
         self.assertEqual(2, len(self.nodes('d')))
         self.assertEqual(1, len(self.nodes('e')))
 
-    def testRemoveOnly(self):
-        self.tree.add('ab')
-
-        self.assertEqual(1, len(self.nodes('b')))
-        b = self.root.child('a').child('b').node
-        self.assertTrue(self.root.child('a').node is b.parent)
-        b.parent.remove(b)
-        self.assertTrue(b.parent is None)
-        self.assertEqual(0, len(self.nodes('b')))
-
     def testNeighbors(self):
         self.tree.add('abc')
         self.tree.add('bcd')
@@ -111,36 +102,6 @@ class RouteTests(TreeTestCase):
         self.assertTrue(left_c.neighbor is middle_c)
         self.assertTrue(middle_c.neighbor is right_c)
 
-    def testRemoveMiddle(self):
-        self.tree.add('abc')
-        self.tree.add('bcd')
-        self.tree.add('cde')
-
-        left_c = self.root.child('a').child('b').child('c').node
-        middle_c = self.root.child('b').child('c').node
-        right_c = self.root.child('c').node
-
-        self.assertEqual(3, len(self.nodes('c')))
-
-        middle_c.parent.remove(middle_c)
-        self.assertEqual(2, len(self.nodes('c')))
-        self.assertTrue(left_c.neighbor is right_c)
-
-    def testRemoveEnd(self):
-        self.tree.add('abc')
-        self.tree.add('bcd')
-        self.tree.add('cde')
-
-        left_c = self.root.child('a').child('b').child('c').node
-        middle_c = self.root.child('b').child('c').node
-        right_c = self.root.child('c').node
-
-        self.assertEqual(3, len(self.nodes('c')))
-
-        right_c.parent.remove(right_c)
-        self.assertEqual(2, len(self.nodes('c')))
-        self.assertTrue(left_c.neighbor is middle_c)
-        self.assertTrue(middle_c.neighbor is None)
 
 class PrefixPathTests(TreeTestCase):
     def testPaths(self):
@@ -150,40 +111,12 @@ class PrefixPathTests(TreeTestCase):
 
         self.assertPathsEqual(['abc', 'bc', 'c'], self.tree.prefix_paths('c'))
 
-class RemovalTests(TreeTestCase):
-    def testLeafRemoval(self):
-        self.tree.add('abc')
-        c = self.root.child('a').child('b').child('c').node
-        b = c.parent
-        b.remove(c)
-        self.assertTrue(c.leaf)
-
-    def testMiddleRemoval(self):
-        self.tree.add('abc')
-        c = self.root.child('a').child('b').child('c').node
-        b = c.parent
-        a = b.parent
-
-        a.remove(b)
-        self.failIf(a.leaf, "the 'a' node should not be a leaf")
-        self.assertTrue(c.parent is a,
-            "the 'c' node should now be a child of 'a'")
-
-    def testMerging(self):
-        self.tree.add('abc')
-        self.tree.add('ac')
-
-        b = self.root.child('a').child('b').node
-        a = b.parent
-        a.remove(b)
-        self.root.child('a').child('c', 2)
 
 class ConditionalTreeTests(TreeTestCase):
     def testGeneration(self):
         self.tree.add('abc')
         self.tree.add('abd')
         self.tree.add('ade')
-
         # Test the tree's structure, just because I'm paranoid.
         b = self.root.child('a', 3).child('b', 2)
         b.child('c', 1)
@@ -191,12 +124,12 @@ class ConditionalTreeTests(TreeTestCase):
         self.root.child('a').child('d', 1).child('e', 1)
 
         paths = list(self.tree.prefix_paths('d'))
-        ct = fp_growth.conditional_tree_from_paths(paths, 1)
+        ct = fp_growth.conditional_tree_from_paths(paths)
         root = NodeTester(self, ct.root)
 
         a = root.child('a', 2)
-        a.child('b', 1).leaf()
-        self.assertEqual(1, len(a.node.children))
+        a.child('b', 1).child('d',1).leaf()
+        self.assertEqual(2, len(a.node.children))
 
     def testPruning(self):
         self.tree.add('abc')
@@ -206,11 +139,10 @@ class ConditionalTreeTests(TreeTestCase):
         self.tree.add('dc')
 
         paths = list(self.tree.prefix_paths('c'))
-        ct = fp_growth.conditional_tree_from_paths(paths, 2)
+        ct = fp_growth.conditional_tree_from_paths(paths)
         root = NodeTester(self, ct.root)
-
-        root.child('a', 2).leaf()
-        self.assertEqual(1, len(root.node.children))
+        root.child('a', 2).child('b',1).child('c',1).leaf()
+        self.assertEqual(2, len(root.node.children))
 
     def testSupport(self):
         """
@@ -219,11 +151,12 @@ class ConditionalTreeTests(TreeTestCase):
         self.tree.add('abcd')
         self.tree.add('abd')
         paths = list(self.tree.prefix_paths('d'))
-        ct = fp_growth.conditional_tree_from_paths(paths, 1)
+        ct = fp_growth.conditional_tree_from_paths(paths)
         root = NodeTester(self,ct.root)
         a = root.child('a',2)
         b = a.child('b',2)
         c = b.child('c',1)
+
 
 class FrequentSetTests(unittest.TestCase):
     def testDuplicate(self):
