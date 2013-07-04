@@ -393,15 +393,30 @@ if __name__ == '__main__':
     p = OptionParser(usage='%prog data_file')
     p.add_option('-s', '--minimum-support', dest='minsup', type='int',
         help='Minimum itemset support (default: 2)')
+    p.add_option('-n', '--numeric', dest='numeric', action='store_true',
+        help='Convert the values in datasets to numerals (default: false)')
     p.set_defaults(minsup=2)
+    p.set_defaults(numeric=False)
 
     options, args = p.parse_args()
     if len(args) < 1:
         p.error('must provide the path to a CSV file to read')
 
-    f = open(args[0])
-    try:
-        for itemset, support in find_frequent_itemsets(csv.reader(f), options.minsup, True):
-            print '{' + ', '.join(itemset) + '} ' + str(support)
-    finally:
-        f.close()
+    transactions = []
+    with open(args[0]) as database:
+        for row in csv.reader(database):
+            if options.numeric:
+                transaction = []
+                for item in row:
+                    transaction.append(long(item))
+                transactions.append(transaction)
+            else:
+                transactions.append(row)
+
+    result = []
+    for itemset, support in find_frequent_itemsets(transactions, options.minsup, True):
+        result.append((itemset,support))
+
+    result = sorted(result, key=lambda i: i[0])
+    for itemset, support in result:
+        print str(itemset) + ' ' + str(support)

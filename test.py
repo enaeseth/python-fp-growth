@@ -70,6 +70,13 @@ class InsertionTests(TreeTestCase):
         b.child('c', 1).child('d', 1)
         b.child('d', 1).child('e', 1)
 
+    def testNumeric(self):
+        self.tree.add([1,2,3])
+        self.tree.add([1,2,4])
+        
+        self.root.child(1,2).child(2,2).child(3,1)
+        self.root.child(1,2).child(2,2).child(4,1)
+
 class RouteTests(TreeTestCase):
     def testRoutes(self):
         self.tree.add('abc')
