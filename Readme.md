@@ -37,11 +37,11 @@ Once installed, the module can also be used as a stand-alone script. It will
 read a list of transactions formatted as a CSV file. (An example of such a file
 in included in the `examples` directory.)
 
-    python -m fp_growth -s {minimum support} {path to CSV file}
+    python3 -m fp_growth -s {minimum support} {path to CSV file}
     
 For example, to find the itemsets with support ≥ 4 in the included example file:
 
-    python -m fp_growth -s 4 examples/tsk.csv
+    python3 -m fp_growth -s 4 examples/tsk.csv
 
 References
 ----------
