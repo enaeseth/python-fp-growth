@@ -54,9 +54,9 @@ You can find association rules as well, as sample
 We used -f to decide what you want to find, association rule or frequency itemset
 
 All parameter:
-    - `-s`: minimum support (count or rate is fine)
-    - `-c`: minimum confidence
-    - `-f`: problem solving (freq or rule)
+    * `-s`: minimum support (count or rate is fine)
+    * `-c`: minimum confidence
+    * `-f`: problem solving (freq or rule)
 
 References
 ----------
