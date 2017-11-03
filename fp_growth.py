@@ -10,7 +10,6 @@ Basic usage of the module is very simple:
 """
 
 from collections import defaultdict, namedtuple
-from itertools import imap
 
 __author__ = 'Eric Naeseth <eric@naeseth.com>'
 __copyright__ = 'Copyright © 2009 Eric Naeseth'
@@ -33,6 +32,10 @@ def find_frequent_itemsets(transactions, minimum_support, include_support=False)
     """
     items = defaultdict(lambda: 0) # mapping from items to their supports
 
+    # if useing support rate instead of support count
+    if 0 < minimum_support <= 1:
+        minimum_support = minimum_support * len(transactions)
+
     # Load the passed-in transactions and count the support that individual
     # items have.
     for transaction in transactions:
@@ -40,19 +43,19 @@ def find_frequent_itemsets(transactions, minimum_support, include_support=False)
             items[item] += 1
 
     # Remove infrequent items from the item support dictionary.
-    items = dict((item, support) for item, support in items.iteritems()
-        if support >= minimum_support)
+    items = dict((item, support) for item, support in items.items()
+            if support >= minimum_support)
 
     # Build our FP-tree. Before any transactions can be added to the tree, they
     # must be stripped of infrequent items and their surviving items must be
     # sorted in decreasing order of frequency.
     def clean_transaction(transaction):
         transaction = filter(lambda v: v in items, transaction)
-        transaction.sort(key=lambda v: items[v], reverse=True)
+        transaction = sorted(transaction, key=lambda v: items[v], reverse=True)
         return transaction
 
     master = FPTree()
-    for transaction in imap(clean_transaction, transactions):
+    for transaction in list(map(clean_transaction, transactions)):
         master.add(transaction)
 
     def find_with_suffix(tree, suffix):
@@ -136,7 +139,7 @@ class FPTree(object):
         element of the tuple is the item itself, and the second element is a
         generator that will yield the nodes in the tree that belong to the item.
         """
-        for item in self._routes.iterkeys():
+        for item in self._routes.keys():
             yield (item, self.nodes(item))
 
     def nodes(self, item):
@@ -167,15 +170,15 @@ class FPTree(object):
         return (collect_path(node) for node in self.nodes(item))
 
     def inspect(self):
-        print 'Tree:'
+        print('Tree:')
         self.root.inspect(1)
 
-        print
-        print 'Routes:'
+        print()
+        print('Routes:')
         for item, nodes in self.items():
-            print '  %r' % item
+            print('  %r' % item)
             for node in nodes:
-                print '    %r' % node
+                print('    %r' % node)
 
 def conditional_tree_from_paths(paths):
     """Build a conditional FP-tree from the given prefix paths."""
@@ -312,7 +315,7 @@ class FPNode(object):
         return tuple(self._children.itervalues())
 
     def inspect(self, depth=0):
-        print ('  ' * depth) + repr(self)
+        print (('  ' * depth) + repr(self))
         for child in self.children:
             child.inspect(depth + 1)
 
@@ -320,6 +323,37 @@ class FPNode(object):
         if self.root:
             return "<%s (root)>" % type(self).__name__
         return "<%s %r (%r)>" % (type(self).__name__, self.item, self.count)
+
+
+def subs(l):
+    """
+    Used for assRule
+    """
+    assert type(l) is list
+    if len(l) == 1:
+        return [l]
+    x = subs(l[1:])
+    return x + [[l[0]] + y for y in x]
+
+
+# Association rules
+def assRule(freq, min_conf = 0.6):
+    """
+    This assRule must input a dict for itemset -> support rate
+    And also can customize your minimum confidence
+    """
+    assert type(freq) is dict
+    result = []
+    for item, sup in freq.items():
+        for subitem in subs(list(item)):
+            sb = [x for x in item if x not in subitem]
+            if sb == [] or subitem == []: continue
+            if len(subitem) == 1 and (subitem[0][0] == 'in' or subitem[0][0] == 'out'):
+                continue
+            conf = sup/freq[tuple(subitem)]
+            if conf >= min_conf:
+                result.append({'from':subitem, 'to':sb, 'sup':sup, 'conf':conf})
+    return result
 
 
 if __name__ == '__main__':
@@ -331,10 +365,18 @@ if __name__ == '__main__':
         help='Minimum itemset support (default: 2)')
     p.add_option('-n', '--numeric', dest='numeric', action='store_true',
         help='Convert the values in datasets to numerals (default: false)')
+    p.add_option('-c', '--minimum-confidence', dest='minconf', type='float',
+        help='Minimum rule confidence (default 0.6)')
+    p.add_option('-f', '--find', dest='find', type='str',
+        help='Finding freq(frequency itemsets) or rule(association rules) (default: freq)')
     p.set_defaults(minsup=2)
     p.set_defaults(numeric=False)
-
+    p.set_defaults(minconf=0.6)
+    p.set_defaults(find='freq')
     options, args = p.parse_args()
+
+    assert options.find == 'freq' or options.find == 'rule'
+
     if len(args) < 1:
         p.error('must provide the path to a CSV file to read')
 
@@ -350,9 +392,17 @@ if __name__ == '__main__':
                 transactions.append(row)
 
     result = []
+    res_for_rul = {}
     for itemset, support in find_frequent_itemsets(transactions, options.minsup, True):
         result.append((itemset,support))
+        res_for_rul[tuple(itemset)] = support
 
-    result = sorted(result, key=lambda i: i[0])
-    for itemset, support in result:
-        print str(itemset) + ' ' + str(support)
+    if options.find == 'freq':
+        result = sorted(result, key=lambda i: i[0])
+        for itemset, support in result:
+            print(str(itemset) + ' ' + str(support))
+    if options.find == 'rule':
+        rules = assRule(res_for_rul, options.minconf)
+        for ru in rules:
+            print(str(ru['from']) + ' -> ' + str(ru['to']))
+            print('support = ' + str(ru['sup']) + 'confindence = ' + str(ru['conf']))

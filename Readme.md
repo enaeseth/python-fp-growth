@@ -25,7 +25,7 @@ in your transactions with the following code:
     from fp_growth import find_frequent_itemsets
     for itemset in find_frequent_itemsets(transactions, minsup):
         print itemset
-        
+
 Note that `find_frequent_itemsets` returns a generator of itemsets, not a
 greedily-populated list. Each item must be hashable (i.e., it must be valid as
 a member of a dictionary or a set).
@@ -37,11 +37,26 @@ Once installed, the module can also be used as a stand-alone script. It will
 read a list of transactions formatted as a CSV file. (An example of such a file
 in included in the `examples` directory.)
 
-    python -m fp_growth -s {minimum support} {path to CSV file}
-    
+    python3 -m fp_growth -s {minimum support} {path to CSV file}
+
 For example, to find the itemsets with support ≥ 4 in the included example file:
 
-    python -m fp_growth -s 4 examples/tsk.csv
+    python3 -m fp_growth -s 4 examples/tsk.csv
+
+Also, sopport can be a support rate, for example:
+
+    python3 -m fp_growth -s 0.3 examples/tsk.csv
+
+You can find association rules as well, as sample
+
+    python3 -m fp_growth -f rule -c 0.4 -s 4 examples/tsk.csv
+
+We used -f to decide what you want to find, association rule or frequency itemset
+
+All parameter:
+* `-s`: minimum support (count or rate is fine)
+* `-c`: minimum confidence
+* `-f`: problem solving (freq or rule)
 
 References
 ----------
