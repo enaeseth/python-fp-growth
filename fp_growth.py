@@ -32,6 +32,10 @@ def find_frequent_itemsets(transactions, minimum_support, include_support=False)
     """
     items = defaultdict(lambda: 0) # mapping from items to their supports
 
+    # if useing support rate instead of support count
+    if 0 < minimum_support <= 1:
+        minimum_support = minimum_support * len(transactions)
+
     # Load the passed-in transactions and count the support that individual
     # items have.
     for transaction in transactions:
@@ -321,6 +325,37 @@ class FPNode(object):
         return "<%s %r (%r)>" % (type(self).__name__, self.item, self.count)
 
 
+def subs(l):
+    """
+    Used for assRule
+    """
+    assert type(l) is list
+    if len(l) == 1:
+        return [l]
+    x = subs(l[1:])
+    return x + [[l[0]] + y for y in x]
+
+
+# Association rules
+def assRule(freq, min_conf = 0.6):
+    """
+    This assRule must input a dict for itemset -> support rate
+    And also can customize your minimum confidence
+    """
+    assert type(freq) is dict
+    result = []
+    for item, sup in freq.items():
+        for subitem in subs(list(item)):
+            sb = [x for x in item if x not in subitem]
+            if sb == [] or subitem == []: continue
+            if len(subitem) == 1 and (subitem[0][0] == 'in' or subitem[0][0] == 'out'):
+                continue
+            conf = sup/freq[tuple(subitem)]
+            if conf >= min_conf:
+                result.append({'from':subitem, 'to':sb, 'sup':sup, 'conf':conf})
+    return result
+
+
 if __name__ == '__main__':
     from optparse import OptionParser
     import csv
@@ -330,10 +365,18 @@ if __name__ == '__main__':
         help='Minimum itemset support (default: 2)')
     p.add_option('-n', '--numeric', dest='numeric', action='store_true',
         help='Convert the values in datasets to numerals (default: false)')
+    p.add_option('-c', '--minimum-confidence', dest='minconf', type='float',
+        help='Minimum rule confidence (default 0.6)')
+    p.add_option('-f', '--find', dest='find', type='str',
+        help='Finding freq(frequency itemsets) or rule(association rules) (default: freq)')
     p.set_defaults(minsup=2)
     p.set_defaults(numeric=False)
-
+    p.set_defaults(minconf=0.6)
+    p.set_defaults(find='freq')
     options, args = p.parse_args()
+
+    assert options.find == 'freq' or options.find == 'rule'
+
     if len(args) < 1:
         p.error('must provide the path to a CSV file to read')
 
@@ -349,9 +392,17 @@ if __name__ == '__main__':
                 transactions.append(row)
 
     result = []
+    res_for_rul = {}
     for itemset, support in find_frequent_itemsets(transactions, options.minsup, True):
         result.append((itemset,support))
+        res_for_rul[tuple(itemset)] = support
 
-    result = sorted(result, key=lambda i: i[0])
-    for itemset, support in result:
-        print(str(itemset) + ' ' + str(support))
+    if options.find == 'freq':
+        result = sorted(result, key=lambda i: i[0])
+        for itemset, support in result:
+            print(str(itemset) + ' ' + str(support))
+    if options.find == 'rule':
+        rules = assRule(res_for_rul, options.minconf)
+        for ru in rules:
+            print(str(ru['from']) + ' -> ' + str(ru['to']))
+            print('support = ' + str(ru['sup']) + 'confindence = ' + str(ru['conf']))
