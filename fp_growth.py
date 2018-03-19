@@ -57,7 +57,7 @@ def find_frequent_itemsets(transactions, minimum_support, include_support=False)
     # must be stripped of infrequent items and their surviving items must be
     # sorted in decreasing order of frequency.
     def clean_transaction(transaction):
-        transaction = filter(lambda v: v in items, transaction)
+        transaction = list(filter(lambda v: v in items, transaction))
         transaction.sort(key=lambda v: items[v], reverse=True)
         return transaction
 
