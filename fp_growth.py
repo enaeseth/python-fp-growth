@@ -44,8 +44,14 @@ def find_frequent_itemsets(transactions, minimum_support, include_support=False)
             items[item] += 1
 
     # Remove infrequent items from the item support dictionary.
-    items = dict((item, support) for item, support in items.iteritems()
-        if support >= minimum_support)
+    try:
+        items = dict((item, support) for item, support in items.iteritems()
+            if support >= minimum_support)
+    except AttributeError:
+        # Python 3
+        items = dict((item, support) for item, support in items.items()
+            if support >= minimum_support)
+        
 
     # Build our FP-tree. Before any transactions can be added to the tree, they
     # must be stripped of infrequent items and their surviving items must be
