@@ -10,7 +10,12 @@ Basic usage of the module is very simple:
 """
 
 from collections import defaultdict, namedtuple
-from itertools import imap
+try:
+    from itertools import imap
+except ImportError:
+    from itertools import map
+    # Python 3...
+    imap=map
 
 __author__ = 'Eric Naeseth <eric@naeseth.com>'
 __copyright__ = 'Copyright © 2009 Eric Naeseth'
