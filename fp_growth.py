@@ -13,7 +13,6 @@ from collections import defaultdict, namedtuple
 try:
     from itertools import imap
 except ImportError:
-    from itertools import map
     # Python 3...
     imap=map
 
