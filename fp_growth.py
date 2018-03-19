@@ -167,15 +167,14 @@ class FPTree(object):
         return (collect_path(node) for node in self.nodes(item))
 
     def inspect(self):
-        print 'Tree:'
+        print('Tree:')
         self.root.inspect(1)
-
-        print
-        print 'Routes:'
+        
+        print('\nRoutes:')
         for item, nodes in self.items():
-            print '  %r' % item
+            print('  %r' % item)
             for node in nodes:
-                print '    %r' % node
+                print('    %r' % node)
 
 def conditional_tree_from_paths(paths):
     """Build a conditional FP-tree from the given prefix paths."""
@@ -312,7 +311,7 @@ class FPNode(object):
         return tuple(self._children.itervalues())
 
     def inspect(self, depth=0):
-        print ('  ' * depth) + repr(self)
+        print(('  ' * depth) + repr(self))
         for child in self.children:
             child.inspect(depth + 1)
 
@@ -355,4 +354,4 @@ if __name__ == '__main__':
 
     result = sorted(result, key=lambda i: i[0])
     for itemset, support in result:
-        print str(itemset) + ' ' + str(support)
+        print(str(itemset) + ' ' + str(support))
