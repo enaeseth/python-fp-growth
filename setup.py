@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(
-    name='fp-growth',
+    name='fp_growth',
     description='A pure-python implementation of the FP-growth algorithm.',
     version='0.1.3',
     author='Eric Naeseth',
