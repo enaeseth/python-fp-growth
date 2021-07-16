@@ -18,7 +18,7 @@ encounter errors, you may need to run setup with elevated permissions:
 Library Usage
 -------------
 
-Usage of the module is very simple. Assuming you have some iterable of transactions (which are themselves iterables of items) called `transactions` and
+Usage of the module is straightforward. Assuming you have some iterable of transactions (which are themselves iterables of items) called `transactions` and
 an integer minimum support value `minsup`, you can find the frequent itemsets
 in your transactions with the following code:
 
@@ -35,7 +35,7 @@ Script Usage
 
 Once installed, the module can also be used as a stand-alone script. It will
 read a list of transactions formatted as a CSV file. (An example of such a file
-in included in the `examples` directory.)
+is included in the `examples` directory.)
 
     python -m fp_growth -s {minimum support} {path to CSV file}
     
