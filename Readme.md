@@ -1,11 +1,11 @@
 Python FP-Growth
 ================
 
-This module provides a pure Python implementation of the FP-growth algorithm for
-finding frequent itemsets. FP-growth exploits an (often-valid) assumption that
-many transactions will have items in common to build a prefix tree. If the
-assumption holds true, this tree produces a compact representation of the actual
-transactions and is used to generate itemsets much faster than *Apriori* can.
+## concept
+Association Rule (연관규칙)을 적용하기 위해서는 각 item들이 각itemset에서 어떤 빈도로 나타났고, 어떤 item과 함께 나왔는지 세는 것이 필수이다. 하지만 데이터셋이 큰 경우, 이를 모든 후보 itemset들에 대해서 하나하나 검사하는 것은 굉장히 비효율적이다. 이러한 문제를 해결하기 위해 제시된 것이 FP-growth algorithm이다.
+
+reference)
+https://process-mining.tistory.com/92
 
 Installation
 ------------
